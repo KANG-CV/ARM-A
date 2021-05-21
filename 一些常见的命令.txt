@@ -1,0 +1,184 @@
+1、
+arm-linux-gcc xxx.c -o xxx		//编译某个C文件到开发板的运行代码
+gcc xxx.c -o xxx                       //编译某个C文件到Linux系统运行代码
+
+2、
+cd mnt/hgfs/                           //进入共享文件夹的路径
+cd mnt/udisk/                          //进入开发板U盘的位置
+
+3、
+vi编辑器
+  怎么进入编辑模式：i   a   o（对应的大写也行）
+  怎么进入命令模式：Esc
+
+  复制：yy    （3yy）
+  粘贴：p（粘贴在当前光标的下一行）  P（粘贴在当前光标的上一行）
+  剪切：dd 
+  剪切一个：x
+  撤销：u
+  找到最末行：G
+  查找：/字符串
+  修改：r  （想改什么就后面跟上你要改的）
+
+  怎么退出vi编辑器：首先按下Esc
+                               ①打出冒号
+                               ②q  ---》退出
+                                   w ---》保存
+                                  wq ---》保存退出
+
+4、
+exit
+  含义：退出当前用户或者退出shell
+  使用：exit
+
+5、
+mount  / umount
+  含义：挂载 / 取消挂载
+  使用：sudo mount /dev/sdb1 /home/gec/pdd
+            sudo mount netware.iso /home/gec/pdd -o loop(挂载镜像文件)
+
+             注意：/dev/sdb1 是分区的名字，获取用fdisk
+                       /dev/sdb1 是挂载点，通常取一个空目录即可，否则，挂载点中的文件将因为失去路径而无法访问，直到你卸载该分区或者挂载点为止
+
+            umount /dev/sdb1
+            umount /home/gec/pdd
+            注意：取消挂载既可以取消分区名称，又可以卸载挂载点，两者效果一样
+            
+6、
+cd
+  含义：切换路径
+  使用：cd :直接切换到家目录       cd ~       cd /home/gec
+            cd ..   切换到上级目录             cd ../..   切换到上上级目录
+            命令和命令之间以空格隔开   路径和路径之间以/隔开
+            cd -   切换到刚刚去过的地方
+            cd /  切换到根目录
+
+7、
+file
+   含义：查看文件信息
+    使用：file xxxx
+
+8、
+cp    (copy)
+   含义：复制文件或者目录
+   使用： cp 源文件路径  目标路径    （如果就在当前目录下，可以不用给路径，直接给名字）        
+             复制文件：     cp 1.txt  pdd
+             复制目录：     cp qqq  pdd -r（递归）
+
+9、
+mv
+    含义：①剪切     ②重命名
+    使用：剪切文件：mv 1.c pdd
+              剪切目录：mv ./qqq  ./pdd
+              重命名：   mv  pdd  qqq
+
+10、
+mkdir / rmdir
+     含义：创建、删除空目录
+     使用：mkdir dir/
+               mkdir q/w/e/ -p   -----》创建连续嵌套的空目录
+               rmdir dir               -----》删除dir这个空目录
+
+11、
+touch
+    含义：创建普通文件
+    使用：touch 1.c
+
+12、
+find
+    含义：在某个目录下，查找文件
+    使用：find . -name "*.c"   在当前目录下查找所有以.c结尾的文件
+
+13、常用的头文件
+（1）open     打开
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+（2）read         读
+#include <unistd.h>
+（3）write     写
+#include <unistd.h>
+（4）close     关闭
+ #include <unistd.h>
+（5）lseek    偏移
+#include <sys/types.h>
+#include <unistd.h>
+
+14、
+音视频格式：mp3               wav             mp4             avi
+播放命令：madplay         aplay          mplayer       mplayer
+
+
+在我这里下载mplayer，放进u盘，然后复制到开发板的/bin
+cp   mplayer   /bin
+
+
+播放音乐：madplay    yy.mp3
+播放视频：mplayer     1.avi
+
+15、
+（1）进入家目录方式：
+gec@ubuntu:/$ cd /home/gec/
+gec@ubuntu:~$ cd ~
+gec@ubuntu:~$ cd
+（2）进入根目录：
+cd /
+
+16、
+开发流程：
+    ①.在Windows端或者VI里面编写好代码无误后，进行交叉编译，arm-linux-gcc ...c -o ..
+    ②将可执行程序下载开发板
+       rx 可执行程序名
+           回车--->点击传输--->发送X-mode--->找到对应的程序的路径--->双击添加到传输--->确定
+
+
+
+       网线：tftp
+
+
+    ③赋予权限
+      chmod 777 文件名
+   
+     ④开发板执行
+       ./文件名
+
+17、编译一整段代码
+arm-linux-gcc *.c -o main -I ./libjpeg -L./libjpeg -ljpeg -pthread
+
+arm-linux-gcc *.c -o main -I ./libjpeg -L./libjpeg -ljpeg -pthread
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
