@@ -1,0 +1,146 @@
+=====================================================================
+使用telnetd（远程连接）连接开发板
+
+1、接线  --串口线   网线
+
+2、配置
+	vi  /etc/profile
+		写入以下两行
+		//ifconfig eth0 192.168.14.103     --固定开发板的IP地址       根据自己电脑自己自定义  
+		udhcpc                                      //自动获取
+		telnetd	                                   --启用telnetd服务
+
+3、配置密码
+	输入  passwd --回车
+		     ---一直回车即可
+
+4、重启开发板  reboot
+ 		  -------以上配置，一次即可
+
+5、CRT中 --菜单栏  《文件》--快速连接--进行下列选择
+
+	协议：Telnet
+	主机名：192.168.66.125 --板子的IP地址
+	 --连接
+
+会看到
+GEC6818 login: root   --输入 root
+Password:             --回车即可
+
+
+----注意：你拔掉  串口线 ，不能使用rx命令了
+
+使用tftp从板子下载文件到电脑
+
+三、========================网线传输================================
+
+1、利用网线传输大文件，查看电脑里面有没有tftpd32.exe这个软件
+
+2、拿出网线，一头接电脑屁股后面，一头接开发板网孔，发现网孔的灯一闪一闪，就表示成功对接
+
+3.查看电脑ip地址
+  1.右键打开网络共享中心，点击详细信息，查看ipv4
+  2.打开cmd，输入ipconfig
+
+4.[root@GEC6818 /guangzhou]#tftp 192.168.101.200 -g -r 3.bmp 4.bmp
+  tftp: sendto: Network is unreachable
+  遇到这个问题：说明开发板和电脑不在同一网段，接下来设置开发板网段
+  查看开发板ip地址：ifconfig    电脑打开cmd查看ip地址：ipconfig
+
+
+  [root@GEC6818 /guangzhou]#ifconfig
+
+  eth0    Link encap:Ethernet  HWaddr 7E:82:FE:C8:03:36  
+          inet addr:192.168.101.2  Bcast:192.168.101.255  Mask:255.255.255.0
+          inet6 addr: fe80::7c82:feff:fec8:336/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:552 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:3 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:42374 (41.3 KiB)  TX bytes:238 (238.0 B)
+          Interrupt:80 
+  lo      Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+ eth0没有网段：首先手动给开发板ip地址(和电脑ip地址在同一网段)：
+       ifconfig eth0 192.168.101.2（最后一个改掉，别和电脑一样）
+ 
+ 
+ 接下来ping一下电脑。看成功与否：
+       ping 192.168.101.200
+
+ 如果显示有64 bytes from 192.169.101.200 .......，表明在同一网段，如果没有任何东西：则需要修改
+                                      ①关闭电脑防火墙
+                                      ②插上网线
+
+  最后： 重复以上操作，成功连接好同一网段后，开始传输大文件：
+  tftp 192.168.201.200（电脑ip地址） -g -r 文件名（从电脑下载）
+                                                           -p -l  文件名（上传到电脑）
+
+
+四、==================================================================
+用U盘传输(U盘文件系统是 FAT32 的才可以成功挂载)
+第一步：先去到访问u盘挂载的路径
+             cd  /mnt/udisk
+
+第二步：查看有没有u盘内容信息
+            ls
+
+如果有的话，就表示可以访问U盘，如果没有的话，表示这个u盘不能
+
+注意：最好将u盘的文件夹名字设置为数字或者字母，中文显示不成功
+
+然后可以在U盘直接执行程序，也可以将文件通过复制 cp 到开发板目录下面去
+
+
+一、=============================内存映射（mmap）============================
+在用户空间映射一片虚拟内存
+NAME
+       mmap, munmap - map or unmap files or devices into memory
+
+头文件： #include <sys/mman.h>
+
+函数原型： void *mmap(void *addr, size_t length, int prot, int flags,
+                  int fd, off_t offset);
+
+参数：addr                 ----->给NULL，由内核直接帮你选择地址
+         length               ----->映射的大小   800*480*4
+         prot                  -----> PROT_READ |  PROT_WRITE 可读可写
+         flags                  ---->MAP_SHARED可分享的
+         fd                      ---->屏幕的文件描述符
+         offset                 ---->偏移量  一般给0
+		 
+返回值：就是你的虚拟空间地址
+
+-----------------------------------
+解除内存映射munmap
+函数原型：int munmap(void *addr, size_t length);
+
+参数：addr                 ----->虚拟空间的首地址
+         length               ----->映射的大小   800*480*4
+
+
+记得有内存映射别忘记了解除内存映射
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

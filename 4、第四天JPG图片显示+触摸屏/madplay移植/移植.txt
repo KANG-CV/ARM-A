@@ -1,0 +1,84 @@
+
+一、准备以下几个库
+libid3tag-0.15.1b.tar.gz  //mp3的解码库
+libmad-0.15.1b.tar.gz //madplay的库文件
+madplay_0.15.2b.orig.tar.gz //播放程序的压缩包，mp3播放器的源码
+zlib-1.2.7.tar.gz //用于文件的压缩与解压
+
+二、编译过程
+1、切换为超级用户
+sudo su  输入密码123456  回车！
+
+2、创建mp3的安装目录
+mkdir /usr/local/mp3/
+chmod 777 -R /usr/local/mp3
+
+3、把以上几个库放置到共享目录
+
+编译zlib-1.2.7.tar.gz
+==============================
+解压：tar zxvf zlib-1.2.7.tar.gz -C ~
+进入：cd ~/zlib-1.2.7/
+配置：./configure --prefix=/usr/local/mp3
+编译：make
+安装：make install
+
+
+编译libid3tag-0.15.1b.tar.gz
+==============================
+解压：tar zxvf libid3tag-0.15.1b.tar.gz -C ~
+进入：cd ~/libid3tag-0.15.1b/
+配置：./configure --prefix=/usr/local/mp3 --host=arm-none-linux-gnueabi
+编译：make
+安装：make install
+
+
+编译libmad-0.15.1b.tar.gz
+==============================
+解压：tar zxvf libmad-0.15.1b.tar.gz -C ~
+进入：cd ~/libmad-0.15.1b/
+配置：./configure --prefix=/usr/local/mp3 --host=arm-none-linux-gnueabi
+编译：make
+
+----------------出现编译错误------------------------
+解决方案：修改Makefile
+1、打开Makefile
+gedit Makefile
+
+2、把129行中的"-fforce-mem"去掉，保存！
+-----------------------------------------------------
+
+重新编译：make
+安装：make install
+
+
+
+
+编译madplay_0.15.2b.orig.tar.gz，这个库的编译需要依赖以上几个库
+===============================================================
+解压：tar zxvf madplay_0.15.2b.orig.tar.gz -C ~
+进入：cd ~/madplay-0.15.2b/
+配置：./configure --host=arm-none-linux-gnueabi --disable-debugging --disable-shared --prefix=/usr/local/mp3 CPPFLAGS="-I/usr/local/mp3/include" LDFLAGS="-L/usr/local/mp3/lib"
+编译：make
+安装：make install
+
+--disable-debugging:禁止调试符号
+--disable-shared：禁止构建共享库
+CPPFLAGS="-I/usr/local/mp3/include"：依赖头文件的路径
+LDFLAGS="-L/usr/local/mp3/lib"：依赖库文件的路径
+
+
+完成以上所有的步骤后，你会在/usr/local/mp3/bin/下看到"madplay"这个可执行程序,这个就是mp3播放器。
+
+
+使用madplay
+开发板测试：
+./madplay xxxx.mp3
+
+
+
+
+
+
+
+

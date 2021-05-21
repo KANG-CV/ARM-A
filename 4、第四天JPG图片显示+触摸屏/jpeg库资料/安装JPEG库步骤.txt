@@ -1,0 +1,51 @@
+
+bmp vs jpeg
+
+jpeg是经过压缩的-----》解压缩(jpeg库)-----》提取像素点显示
+
+
+移植jpeg库     配置   编译   安装
+
+1.将jpegsrc.v9a.tar.gz 解压到家目录,共享目录万万不可
+               ①tar -zxvf jpegsrc.v9a.tar.gz -C ~       x    c    z    j   压缩GZ：cz      解压bz2格式：xj
+               -C ：指定包解压的位置
+               Linux: gz    bz2    xz
+               x:解压           c:压缩
+               z：gz格式     j：bz2格式
+2.在家目录创建一个jpeg目录
+                ②cd
+                ③mkdir jpeg
+	
+3.进入jpeg-9a目录
+	④cd jpeg-9a
+	
+4.配置jpeg-9a
+	⑤./configure --prefix=/home/gec/jpeg/  CC=arm-linux-gcc --host=arm-linux --enable-shared --enable-static
+	
+	host:指定编译的命令
+	prefix ： jpeg安装的位置
+	
+5.编译jpeg
+	⑥make
+	
+5.安装jpeg
+	⑦make install
+
+①将/home/gec/jpeg/arm-jpeg/lib/libjpeg.so.9，下载到开发板/lib目录，然后修改库权限
+②在windowns建一个文件，
+③将/home/gec/jpeg/arm-jpeg/lib里面的所有拷贝到windowns放进该文件夹
+④将/home/gec/jpeg/arm-jpeg/include里面的头文件拷贝到windowns放进该文件夹
+	
+6.编译代码
+
+
+1. arm-linux-gcc *.c -o main -I./libjpeg -L./libjpeg -ljpeg 
+
+
+ *.c ：当前目录下的所有.c文件（只有一个.c文件有main函数）
+ -I./libjpeg ：指定第三方库的一个头文件路径
+ -L./libjpeg ：指定第三方动态库的路径
+ -ljpeg ：指定动态库的库名
+
+  规定：libxxxx.so 库名
+        -lxxxx就代表链接库文件

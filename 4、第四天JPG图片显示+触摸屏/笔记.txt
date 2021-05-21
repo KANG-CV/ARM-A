@@ -1,0 +1,16 @@
+音视频格式：mp3               wav             mp4             avi
+播放命令：madplay         aplay          mplayer       mplayer
+
+
+在我这里下载mplayer，放进u盘，然后复制到开发板的/bin
+cp   mplayer   /bin
+
+
+播放音乐：madplay    yy.mp3
+播放视频：mplayer     1.avi
+
+
+作业：电子小钢炮
+         编译命令：arm-linux-gcc *.c -o main -I./libjpeg -L./libjpeg -ljpeg -pthread
+
+

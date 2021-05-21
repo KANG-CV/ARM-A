@@ -1,0 +1,163 @@
+练习：熟悉DOS命令
+         切换到D盘，创建一个目录叫HD，在进入该目录然后创建一个文件1.txt，并写入文件信息随意，
+          最后删除该文件，返回HD这个目录，再删除HD这个目录
+
+进入家目录方式：
+gec@ubuntu:/$ cd /home/gec/
+gec@ubuntu:~$ cd ~
+gec@ubuntu:~$ cd
+
+进入根目录：
+cd /
+
+============================文件IO=========================
+在Linux里面，一切皆文件
+对于文件操作，    打开          读          写         关闭
+                              open       read     write     close
+
+我们当前学习的是系统IO，标准IO： fopen       fread     fwrite     fclose
+
+1.open     打开
+NAME
+       open, openat, creat - open and possibly create a file
+
+头文件：       #include <sys/types.h>
+                    #include <sys/stat.h>
+                    #include <fcntl.h>
+
+函数原型： int open(const char *pathname, int flags);//打开
+                   int open(const char *pathname, int flags, mode_t mode);//创建
+
+参数：pathname      ------->路径名      （类型：const char *  指字符串）
+            flags              ------->O_RDONLY              只读
+                                                O_WRONLY             只写
+                                                O_RDWR                  可读可写
+
+
+                                            此外：     O_APPEND          在末尾追加
+                                                            O_CREAT             创建
+                                                            O_TRUNC            清空该文件
+
+
+返回值：int整型      （文件描述符    fd）
+               打开一个文件，最小的文件描述符是3,            0,1,2分别被系统占用了，0指键盘，1，2都指屏幕
+
+              >0       打开成功
+              <0       打开失败
+
+功能：打开或者创建一个文件
+
+
+2.read         读
+ NAME
+       read - read from a file descriptor
+
+头文件： #include <unistd.h>
+
+函数原型：ssize_t read(int fd, void *buf, size_t count);
+
+参数：fd          ----->文件描述符
+           buf        ----->缓冲区
+           count    ----->大小
+
+返回值：ssize_t（可以理解为int） >0    就是成功读取的字节数
+              <0    读取失败
+
+功能：读取        fd---->  buf
+
+3.write     写
+NAME
+       write - write to a file descriptor
+
+头文件： #include <unistd.h>
+
+函数原型：ssize_t read(int fd,const  void *buf, size_t count);
+
+参数：fd          ----->文件描述符
+           buf        ----->缓冲区
+           count    ----->大小
+
+返回值：ssize_t（可以理解为int） >0    就是成功写入的字节数
+              <0    写入失败
+
+功能：写入        buf---->  fd
+
+
+4.close     关闭
+NAME
+       close - close a file descriptor
+
+头文件： #include <unistd.h>
+
+函数原型：int close(int fd);
+
+参数：fd       ---->文件描述符
+
+返回值：>0           关闭成功
+              <0            关闭失败
+
+功能：关闭文件
+
+
+5.lseek    偏移
+NAME
+       lseek - reposition read/write file offset
+
+ 头文件：#include <sys/types.h>
+              #include <unistd.h>
+
+函数原型：off_t lseek(int fd, off_t offset, int whence);
+ 
+
+参数：fd      ---->文件描述符
+          offset    ---->偏移量
+          whence   ------>SEEK_SET    从开头偏移
+              			The offset is set to offset bytes.
+
+      		 SEEK_CUR     从当前位置偏移
+             			 The offset is set to its current location plus offset bytes.
+
+      		 SEEK_END    从末尾偏移
+             			 The offset is set to the size of the file plus offset bytes.
+
+返回值：off_t     
+            >0    偏移成功 ，并且返回的是从头的字节数
+           <0     偏移失败
+
+
+练习：创建一个文件文件1，然后键盘写入数据到文件，然后将文件数据给复制到文件2
+
+
+===============================开发板介绍===========================
+开发板资料：三星Cotex-A53 S5P6818
+    ARM：英国半导体公司，只是设计方案，卖出一颗就收专利
+    ARM芯片：高通骁龙，海思麒麟，苹果CPU
+   
+
+ARM分解：
+     A系列：主要用于智能终端（手机，平板）
+     R系列：主要用在航天事业
+     M系列：主要用于控制和采集（扫地机器人，无人机，3d打印机，机械臂，平衡车）
+
+开发板类似于一个手机，可以跑系统，就可以说能够运行linux系统，那就可以进行命令基本操作命令--超级终端
+
+使用开发板：
+    首先由一根串口线，一头连接开发板，一头连接电脑，在电脑属性里面找到设备管理器，看是COM几
+    双击SecureCRT,可以参考第一天图示连接方式
+  
+开发流程：
+    ①.在Windows端或者VI里面编写好代码无误后，进行交叉编译，arm-linux-gcc ...c -o ..
+    ②将可执行程序下载开发板
+       rx 可执行程序名
+           回车--->点击传输--->发送X-mode--->找到对应的程序的路径--->双击添加到传输--->确定
+
+
+
+       网线：tftp
+
+
+    ③赋予权限
+      chmod 777 文件名
+   
+     ④开发板执行
+       ./文件名
