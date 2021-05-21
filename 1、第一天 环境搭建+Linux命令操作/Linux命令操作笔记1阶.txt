@@ -1,0 +1,236 @@
+广州粤嵌通信科技股份有限公司
+赵福炜               15213340186 
+智能车库            
+
+=========================嵌入式和STM32===========================
+1.什么是嵌入式
+除了桌面PC之外，所有的控制类设备都是嵌入式
+
+2.stm32是由ARM公司设计，意法半导体（ST）公司生产
+3.STM32的背景，以前一直是使用51单片机实现一些简易的控制设备，虽然51易上手学习简单，但是已经不适合现在的复杂的需求环境。由于需求的变化，ARM公司推出了全新的ARMv7架构的32位CortexM3，主要用在工控场景。
+
+4.	STM32 能做什么
+STM32 属于一个微控制器，自带了各种常用通信接口，比如 USART、 I2C、 SPI 等，可接非常多的传感器，可以控制很多的设备。现实生活中，我们接触到的很多电器产品都有 STM32 的身影，比如智能手环，微型四轴飞行器，平衡车、移动 POS机，智能电饭锅，3D 打印机等等。下面我们以最近最为火爆的两个产品来讲解下，一个是手环，一个是飞行器。
+
+
+2.嵌入式的特点
+ 	硬件特点
+体积小、集成效率高
+面向特定的应用场景
+功耗低、电磁兼容性好
+软件特点
+嵌入式软件的开发和硬件紧密关联
+软件代码要求高效率和高可靠性
+软件代码一般固化在FLASH或者ROM里面
+软件系统具有高实时性
+一般采用C语言开发
+
+3.主流的嵌入式芯片架构
+ARM---
+ARM是英国一家电子公司的名字
+ARM敢为天下先，该公司不生产芯片，也不设计芯片，而是设计出高效的IP内核，授权给半异体公司使用
+ARM提供一系列内核、体系扩展、微处理器和系统芯片解决方案
+ARM是一种功耗很低的高性能处理器芯片架构
+
+
+ARM以前的架构：ARM7、 ARM9、 ARM11 
+ARM现在的架构：Cortex-A、R、M
+Cortex-A --开放式操作系统的高性能处理器
+A8 A9 A15 A52 A53 A72 A73  A75 A76 A77
+应用场景：智能手机、上网本、数字电视、机顶盒
+
+Cortex-R --面向实时应用的卓越性能
+
+应用场景：汽车制动系统、动力传输、航天航空
+
+Cortex-M --面向具有确定性的微控制应用的成本敏感性的产品
+		M0 M3 M4 M7
+应用场景：门禁、扫地机器人、 平衡车、手环，四轴飞行器等等
+
+
+
+1.虚拟机.Ubuntu的安装过程
+  准备镜像：http://cn.ubuntu.com/download/
+  ubuntu基本上是每年的4月份和10月发布
+  所以一般版本号：16.04  18.04  20.04
+  下载镜像一定要长期支持版本：LTS意为“长期支持”，一般为5年。LTS版本将提供免费安全和维护更新至2025年4月。
+  ubuntu系统现在并且以后将来永远是免费使用。所以才会推出麒麟版
+  基于Linux操作系统：开源   、可裁剪  、 用户群体广泛
+
+2.Ubuntu是基于Linux系统发行版本之一
+   RetHat（红帽）  Ubuntu   Debian
+
+3.安装Ubuntu镜像：
+  https://baijiahao.baidu.com/s?id=1670100505795119581&wfr=spider&for=pc
+
+
+vim
+=================
+1.安装：sudo apt install vim
+2.配置：sudo vi /etc/vim/vimrc,在这里面找到这个地方
+ set showcmd             " Show (partial) command in status line.
+set showmatch           " Show matching brackets.
+set ignorecase          " Do case insensitive matching
+set smartcase           " Do smart case matching
+set incsearch           " Incremental search
+set autowrite           " Automatically save before commands like :next and :make
+set hidden              " Hide buffers when they are abandoned
+set mouse=a             " Enable mouse usage (all modes)
+
+确保上面的set前面的”去掉
+
+然后在后面加两个：
+显示行号：set number
+自动缩进：set cindent
+当前光标哪一行就加一根线：set cursorline
+
+
+4.vi编辑器
+  怎么进入编辑模式：i   a   o（对应的大写也行）
+  怎么进入命令模式：Esc
+
+  复制：yy    （3yy）
+  粘贴：p（粘贴在当前光标的下一行）  P（粘贴在当前光标的上一行）
+  剪切：dd 
+  剪切一个：x
+  撤销：u
+  找到最末行：G
+  查找：/字符串
+  修改：r  （想改什么就后面跟上你要改的）
+
+  怎么退出vi编辑器：首先按下Esc
+                               ①打出冒号
+                               ②q  ---》退出
+                                   w ---》保存
+                                  wq ---》保存退出
+                                  q！---》强制退出
+
+
+======================================================
+man手册
+安装：sudo apt install manpages manpages-dev manpages-posix manpages-posix-dev
+
+       1   Executable programs or shell commands （系统命令）
+       2   System calls (functions provided by the kernel)（系统调用：操作系统提供的Linux内核提供的）
+       3   Library calls (functions within program libraries)（库函数）
+
+       4   Special files (usually found in /dev)
+       5   File formats and conventions eg /etc/passwd
+       6   Games
+       7   Miscellaneous  (including  macro packages and conventions),
+           e.g. man(7), groff(7)
+       8   System administration commands (usually only for root)
+       9   Kernel routines [Non standard]
+
+      要想查找是哪几本有你所需的：man  -f  read
+       gec@ubuntu:~$ man -f read
+       read (2)             - read from a file descriptor
+       read (3posix)        - read from a file
+       read (1posix)        - read a line from standard input
+
+     具体想查哪一本：man  1posix read              man 2 read            man 3posix read
+              可缩写为     man 1 read                      man 2 read            man 3 read
+
+
+======================================================================
+1.id
+  含义：查看当前用户相关的id（比如当前用户id，原始用户id，添加用户组id）
+  使用：id
+
+2.su
+  含义：进入用户
+  使用：su jack
+
+3.exit
+  含义：退出当前用户或者退出shell
+  使用：exit
+
+4.whoami
+  含义：查看自己是哪个用户
+  使用：whoami
+
+ls  -l 
+gec@ubuntu:~$ ls -l
+total 32
+-rw-rw-r--  1 gec gec   87 Aug 29 14:44 1.c
+drwxr-xr-x  2 gec gec 4096 Nov 14  2017 Desktop/
+drwxrwxr-x  2 gec gec 4096 Nov 22  2017 download/
+-rw-r--r--  1 gec gec 8980 Sep 30  2017 examples.desktop
+drwxr-xr-x  3 gec gec 4096 Sep 30  2017 Pictures/
+lrwxrwxrwx  1 gec gec    9 Oct 20  2017 share -> /mnt/hgfs
+drwxrwxr-x 23 gec gec 4096 Oct 20  2017 utilities/
+ 
+                 u            g            o
+-              rw-rw-r--  1                                  gec            gec       87                 Aug 29 14:44             1.c
+普通文件   所有者 + 所属组 + 其他   1             所有者      所属组      文件大小       最后一次修改时间      文件名
+文件类型  文件对各种用户的权限      引用计数
+                                                     名字个数
+
+
+r：可读           ①对与普通文件而言意味着可以查看文件内容
+                      ②对于目录而言意味着查看目录的内容
+
+w：可写          ①对与普通文件而言意味着可以修改文件内容
+                      ②对于目录而言意味着可以增删目录的内容
+
+x：可执行        ①对与普通文件而言意味着可以将文件内容加载到内存
+                      ②对于目录而言意味着可以进入该目录
+
+5.chmod 
+  含义：修改权限
+  使用：chmod u+x,o-r 1.c
+            chmod 760 1.c
+
+  rw- rw- r--
+  110 110 100
+   6     6      4
+
+  最高权限：777
+
+6.chown / chgrp
+  含义：修改指定文件的所有者、所属组
+  使用：sudo chown jack 1.c   将文件1.c的所有者设置为jack
+            sudo chgrp pdd 1.c     将文件1.c的所属组设置为pdd
+
+
+在Linux里面一个有七种文件
+d：directory  目录
+s：socket      套接字
+p：pipe         有名管道
+b：block       块设备文件
+c：character  字符设备文件
+l：link           链接文件（软链接或符号链接）   相当于windowns的快捷方式
+-：regular    普通文件
+
+
+
+7.ps（process state 进程状态）
+   含义：查看进程的各种信息
+   用法：ps
+            ps -ef  （居多使用）
+            ps aux
+
+8.top
+   含义：动态查看进程的状态
+   使用：top   查看所有进程状态
+            top  -p 178（查看进程号为178的进程状态）
+
+
+9.kill
+   含义：向某个进程发信号
+   使用：kill -l              查看系统所支持的信号
+            kill -9 1234      向pid为1234的进程发送杀死信号
+
+gec@ubuntu:~$ kill -l
+ 1) SIGHUP	 2) SIGINT	                3) SIGQUIT	 4) SIGILL	                5) SIGTRAP
+ 6) SIGABRT	 7) SIGBUS	 8) SIGFPE	                 9) SIGKILL	10) SIGUSR1
+11) SIGSEGV	12) SIGUSR2	13) SIGPIPE	14) SIGALRM	15) SIGTERM
+16) SIGSTKFLT	17) SIGCHLD	18) SIGCONT	19) SIGSTOP	20) SIGTSTP
+21) SIGTTIN	22) SIGTTOU	23) SIGURG	24) SIGXCPU	25) SIGXFSZ
+26) SIGVTALRM	27) SIGPROF	28) SIGWINCH	29) SIGIO	30) SIGPWR
+31) SIGSYS	34) SIGRTMIN	35) SIGRTMIN+1	36) SIGRTMIN+2	37) SIGRTMIN+3
+38) SIGRTMIN+4	39) SIGRTMIN+5	40) SIGRTMIN+6	41) SIGRTMIN+7	42) SIGRTMIN+8
+43) SIGRTMIN+9	44) SIGRTMIN+10	45) SIGRTMIN+11	46) SIGRTMIN+12	47) SIGRTMIN+13
+48) SIGRTMIN+14	49) SIGRTMIN+15	50) SIGRTMAX-14	51) SIGRTMAX-13	52) SIGRTMAX-12
+53) SIGRTMAX-11	54) SIGRTMAX-10	55) SIGRTMAX-9	56) SIGRTMAX-8	57) SIGRTMAX-7
+58) SIGRTMAX-6	59) SIGRTMAX-5	60) SIGRTMAX-4	61) SIGRTMAX-3	62) SIGRTMAX-2

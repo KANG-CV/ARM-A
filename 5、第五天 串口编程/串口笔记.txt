@@ -1,0 +1,126 @@
+嵌入式开发：人工智能，核心传感器（RFID，摄像头，温湿度。。）---》写代码控制，?你必须要好好看厂家给你的手册（模块原理图，介绍工作原理，如何配置）
+
+
+RFID   分析厂家过后---波特率为9600
+
+射频识别，RFID（Radio Frequency Identification）技术，又称无线射频识别，是一种通信技术，可通过无线电讯号识别特定目标并读写相关数据，而无需识别系统与特定目标之间建立机械或光学接触
+控制
+
+RFID运用场景
+
+
+1． 畜牧业的管理系统。
+2． 汽车防盗和无钥匙开门系统的应用。
+3． 马拉松赛跑系统的应用。
+4． 自动停车场收费和车辆管理系统。
+5． 自动加油系统的应用。
+6． 酒店门锁系统的应用。
+7． 门禁和安全管理系统。
+=====================================串口编程====================================
+1.串口   串口通信的接口（COM口）
+2.串口通信
+  常见的串口通信：并行通信   串行通信
+  串行通信：就一条线传输
+  并行通信：多条线传输
+   
+
+  常见的数据通信的基本方式可分为并行通信与串行通信两种。	
+    ①并行通信是指利用多条数据传输线将一个字数据的各比特位同时传送。它的特点是传输速度快，
+        适用于传输距离短且传输速度较高的通信。	
+    ②串行通信是指利用一条传输线将数据以比特位为单位顺序传送。特点是通信 线路简单，
+        利用简单的线缆就可实现通信，降低成本，适用于传输距离长且 传输速度较慢的通信。3.串口
+  常见的串口：同步串口       异步串口
+  同步串口：一般用在工业上
+  异步串口：UART串口    USART---->S指的就是同步
+
+           RS232   RS485    TTL
+
+  TXD--->发送端
+  RXD--->接收端
+        注意：这两个在用的时候要反接
+
+4.通信方式
+  单工：数据只能往一个方向进行传输                                      --->收音机
+  半双工：同一时间下，数据只能从一个方向进行数据传输       --->对讲机
+  全双工：同一时间下，数据可以同时收发                               --->电话
+
+  串口通信：全双工
+
+5.我们这块开发板是Cortex-A53系列GEC6818
+   /dev/ttySAC0     ---->COM5  
+  /dev/ ttySAC1     ---->COM2  
+   /dev/ttySAC2     ---->COM3  
+   /dev/ttySAC3     ---->COM4  
+  
+6.串口初始化
+ 串口的设置主要是设置 struct termios 结构体的各成员值
+ ＃include<termios.h> 
+ struct termios {	
+    unsigned short	c_iflag;/* 输入模式标志 */ 	
+    unsigned short	c_oflag;/* 输出模式标志 */	
+    unsigned short	c_cflag;/* 控制模式标志*/    ************	
+    unsigned short	c_lflag;/* 本地模式标志 */	
+    unsigned char	c_line; /* 线路规程 */ 	
+    unsigned char	c_cc[NCC];/* 控制特性 */
+    speed_t	c_ispeed;	/* 输入速度 */	
+    speed_t	c_ospeed;	/* 输出速度 */
+ }; 
+  ①保存原先串口配置     struct termios old_cfg,new_cfg;
+     bzero();
+   
+     if(tcgetattr(fd, &old_cfg) != 0)
+     {	
+         perror("tcgetattr"); 
+         return -1;
+     }
+   ②激活选项
+    new_cfg.c_cflag  |=  CLOCAL | CREAD; 
+   
+   cfmakeraw(&new_cfg);   
+ 
+   ③设置波特率
+
+     波特率：115200 ：每一秒传输115200 bit（位）数据      115200/8Byte
+
+     cfsetispeed(&new_cfg, B115200); 
+     cfsetospeed(&new_cfg, B115200);
+   ④设置字符大小
+     new_cfg.c_cflag &= ~CSIZE; /* 用数据位掩码清空数据位设置 */
+     new_cfg.c_cflag |= CS8;
+   ⑤设置奇偶校验位
+     new_cfg.c_cflag &= ~PARENB;
+
+   ⑥设置停止位
+     new_cfg.c_cflag &= ~CSTOPB; /* 将停止位设置为一个比特 */
+
+   ⑦设置最少字符和等待时间
+     MIN > 0和TIME = 0：read()函数会被阻塞直到MIN个字节数据可被读取。
+     new_cfg.c_cc[VTIME]= 0;
+    new_cfg.c_cc[VMIN] = 1;
+
+   ⑧清除串口缓冲
+      tcflush(fd, TCIFLUSH);
+      TCIFLUSH：对接收到而未被读取的数据进行清空处理。
+
+
+   ⑨激活配置
+     在完成全部串口配置之后，要激活刚才的配置并使配置生效。这里用到的函数是tcsetattr()，
+      它的函数原型是：
+     tcsetattr(int fd, int optional_actions, const struct termios *termios_p);
+
+     其中参数termios_p是termios类型的新配置变量。
+     参数optional_actions可能的取值有以下3种：
+        TCSANOW：配置的修改立即生效。
+        TCSADRAIN：配置的修改在所有写入fd的输出都传输完毕之后生效。
+        TCSAFLUSH：所有已接受但未读入的输入都将在修改生效之前被丢弃。
+ 该函数若调用成功则返回0，若失败则返回-1，代码如下所示：
+
+     tcsetattr(fd,TCSANOW,&new_cfg);
+
+     该函数若调用成功则返回 0，若失败则返回-1，代码如下所示：     if ((tcsetattr(fd, TCSANOW, &new_cfg)) != 0)     {	
+        perror("tcsetattr");	
+        return -1;
+      }
+
+练习：使用串口实现两个开发板之间聊天
+      提示：每次数据收发要记得清除串口缓冲
