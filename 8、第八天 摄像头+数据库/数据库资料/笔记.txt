@@ -1,0 +1,346 @@
+一. 数据库SQL （structured Query Language）  ---> 结构体化查询语言
+
+    1. 常见的数据存储： 数组，链表     ---> 存放数据较少
+    	 	       数据库         ---> 存放数据较多，数据使用合理性较高
+
+    2. 数据库的种类非常多
+	mySQL、SQLite、oracle等...，各种数据之间差异：
+
+同：  在数据库中，无论是哪种数据库，使用的语句命令都是一样的
+异：  使用的场景不一样，由于SQLite处理数据速度会较快，一般地会作用于嵌入式微型设备中，数据库      与程序是不分离的，我们要做的是，把一个数据库嵌入到一个程序中。
+
+二. 嵌入式数据库的使用场景以及学习目标
+
+    0.  在嵌入式平台(x86)上安装数据库SQL
+    1.  数据库会类似于一个execl表格一样存储数据  --> 学习SQL数据库增删改查语句（常用）
+    2.  学习SQL数据库开源性接口
+    3.  学程序放置到开发板中使用
+
+三. 在x86平台安装SQL数据库
+
+  SQL数据库是开源库，可以通过第三方平台下载得到。
+  下载网址： https://www.sqlite.org/download.html
+
+sqlite-autoconf-3240000.tar.gz(2.57 MiB)    ---> 自动配置	
+C source code as an amalgamation. Also includes a "configure" script and TEA makefiles for the TCL Interface.
+
+  安装数据库SQL到家目录下的sql目录中
+ 	 1.  解压： tar zxvf sqlite-autoconf-3240000.tar.gz -C ~
+  	 2.  配置： ./configure --prefix=/home/gec/sql
+	     编译： make 
+	     安装： make install
+
+   家目录sql/bin下的sqlite3就是数据库的执行文件，需要设置到环境变量PATH中
+
+  练习： 将SQL数据库移植到ARM平台
+
+四.数据库的使用
+
+ 1.  创建数据库的工程目录并切换到该工作路径下
+
+	cd ~
+	mkdir sql_work
+	cd sql_work
+
+ 2.  数据库的初步使用
+
+gec@ubuntu:~/sql_work$ sqlite3 
+
+SQLite version 3.24.0 2018-06-04 19:24:41
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+sqlite>    ---> 数据库语句命令行 ，不是shell命令行
+
+   sqlite3 的命令 以 .开头
+                  数据库SQL内部语句（增删改查）不是以 .开头
+
+sqlite>.help     查询帮助
+sqlite>.quit     退出
+
+五. 根据《经典SQL.doc》,逐一理解每条SQL语句
+
+   重点讲解： 增删改查！
+
+  1.   启动sqlite3，并指定一个数据库名parking.db。如果该数据库不存在，sqlite3并不会立即创建它，而是要等到其中有了实质性的内容（比如表、视图等）才会真正创建。
+
+         sqlite3 parking.db
+
+
+gec@ubuntu:~/sql_work$ sqlite3 parking.db    ---> 仅仅是指定名字
+SQLite version 3.24.0 2018-06-04 19:24:41
+Enter ".help" for usage hints.
+sqlite> 
+sqlite> .quit    --> 退出数据库
+gec@ubuntu:~/sql_work$ 
+gec@ubuntu:~/sql_work$ ls  
+gec@ubuntu:~/sql_work$     ---> 没有看到parking.db
+
+
+  2.  在数据库parking.db中（后续的所有命令都是针对此数据库，故不再另做说明）创建表carinfo
+此表包括两个域：_id和licence，其中
+    A) _id是类型是整数，并且是主键，并且不能为空
+    B) licence类型是文本，没有约束条件
+ 
+		        域名  类型       约束条件          域名   类型      
+   create table carinfo(id integer primary key not null,licence text); 
+
+ 主键： 表中有且只有一个主键 primary key 
+
+  3.  查看当前数据库中已经存在的表
+
+      .table     
+
+sqlite> .table
+carinfo     ----> 刚刚创建的表，名字为carinfo
+
+   SQL命令：  以. 开头
+   SQL语句：  不以.开头，但是结尾必须有“;”作为结束标志
+
+  4.  查看表格中成员的类型
+
+      .schema carinfo
+
+sqlite> .schema carinfo
+CREATE TABLE carinfo(id integer primary key not null,licence text);
+
+  5.  增：  插入数据到表中
+
+     insert into carinfo values(100,'粤AQK212');
+
+	---> 指定一条数据的ID为100，licence为'粤AQK212',插入后，主键ID默认递增的数字从100开始。
+
+
+     insert into carinfo(licence) values('粤A2PB46'); 
+
+	 ---> 插入指定一条数据的licence的值为'粤A2PB46'，由于_id没有指定值，并且_id是主键不能为NULL，所有会自动赋一个起始值为1，并逐渐递增。如果当前已经有主键值，则默认在此基础上加1。
+
+  6.  删：  根据给出的特征删除表中的一行数据
+
+	//删除licence这列为粤A2PB46这行数据
+     delete from carinfo where licence like "粤A2PB46"; 
+
+	//删除licence这列以粤A2P开头的数据
+     delete from carinfo where licence like "粤A2P%";
+ 
+	//删除id这列为3的数据
+     delete from carinfo where id like 3; 
+
+  7.  查：  查看表中内容
+
+	select * from carinfo; 
+	select id from carinfo;
+	select licence from carinfo;
+
+	//把id为100的数据的licence值打印出来
+	select licence from carinfo where id like 100;
+
+   8.  改：  更新某个变量值
+
+	//把carinfo中的id=100的id修改为id=3;
+     update carinfo set id=3 where id=100;
+
+
+  练习： 建立一个数据库，在数据库中创建表，表中有三个班级，班级名为GZ1825，WH1807，XA1804,添加4个学生分别是:
+
+   ID号（主键）     姓名       性别        生日         班级   
+===============================================================
+     56             Sally       'M'      1995-08-12     GZ1825
+     87             Jack        'F'      1998-05-30     WH1807
+    100             Rose        'M'      1996-04-29     XA1804
+    106             Happy       'F'      1997-08-12     GZ1825
+
+   其中要有男生也要有女生，男生’M’，女生’F’，其中要有2名学生是8月12日的生日,要求使用语句找出所有出生日期为8月12日的学生。
+
+
+六. 根据《SQLite核心C-API.doc》，学习3个关于数据库的接口
+
+    这些接口的代码，其实都是开源的，也就是说，我们可以看到这些函数的实现过程。
+    sqlite-amalgamation-3240000/sqlite3.c
+
+    使用这个源码文件编程程序必须：
+	1） 使用头文件 #include "sqlite3.h"
+	2） 链接库文件 -lpthread -ldl
+
+  1. 建立一个数据库文件
+ 
+     #include "sqlite3.h"
+
+ int sqlite3_open(const char *filename, sqlite3 **ppDb);
+ int sqlite3_open_v2(const char *filename,sqlite3 **ppDb,int flags,const char *zVfs);
+
+	filename: 创建数据库名字
+	ppDb:  数据库分配的内存地址
+	flags: SQLITE_OPEN_READONLY 只读
+   	       SQLITE_OPEN_READWRITE 读写
+	       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE  读写，不存在则创建
+	zVfs: 一般置为NULL即可
+
+	返回值：
+		成功：0
+		失败：1
+
+  2.  执行数据库SQL语句
+
+     #include "sqlite3.h"
+
+ int sqlite3_exec(sqlite3*db, const char *sql, int (*callback)(void*,int,char**,char**), void *p, char **errmsg);
+
+    db: 数据库指定的储存空间
+    sql: 需要执行的SQL语句
+    callback: 回调函数  --> 如果SQL语句有多次返回结果，则每次返回都需要执行回调函数
+    p:  送进回调函数中的第一个参数
+    errmsg:  如果不为NULL，则存放错误信息，如果为NULL，则不关注。
+
+	返回值：
+		成功：0
+		失败：1
+
+     int callback(void *p, int num_of_col, char **text, char **name);
+	
+	num_of_col是SQL执行结果的列数
+	text是一个char型指针数组，这些指针指向类似由sqlite3_column_text()得到的字符串。
+	name也是一个char型指针数组，这些指针指向类似由sqlite3_column_name()得到的字符串。
+
+如果参数sql为NULL，或者指向空字符串””，或者包含一个空的SQL语句，那么数据库的状态将不会发生任何改变。
+
+   3.  关闭数据库  
+
+	   #include "sqlite3.h"
+
+	int sqlite3_close(sqlite3*);
+
+	sqlite3*： 存放着数据库的内存地址
+	
+	返回值：
+		成功：0
+		失败：1
+
+=========================================================================
+
+    练习1： 写一个程序，并实现创建一个数据库，并在数据库中创建一个表，表中有三个班级，班级名为GZ1825，WH1807，XA1804,添加4个学生分别是:
+
+    ID号（主键）     姓名       性别        生日         班级   
+===============================================================
+     56             Sally       'M'      1995-08-12     GZ1825
+     87             Jack        'F'      1998-05-30     WH1807
+    100             Rose        'M'      1996-04-29     XA1804
+    106             Happy       'F'      1997-08-12     GZ1825
+
+   其中要有男生也要有女生，男生’M’，女生’F’，其中要有2名学生是8月12日的生日,要求使用语句找出所有出生日期为8月12日的学生。
+
+
+int main()
+{
+	system("rm parking.db");
+	
+	sqlite3 *db = NULL;
+	char *sql = NULL;
+	int ret;
+	//1. 建立数据库
+	ret = sqlite3_open("parking.db",&db);
+	printf("sqlite3_open ret = %d\n",ret);
+	
+	//2. 在数据库内建立一个表格
+	sql = "create table if not exists carinfo(id integer primary key not null,name text,sex text,birth text,class text);";
+	ret = sqlite3_exec(db,sql,NULL,NULL,NULL);
+	printf("sqlite3_exec ret = %d\n",ret);
+	
+	//3. 增加若干条数据
+	sql = "insert into carinfo values(56,'Sally','M','1995-08-12','GZ1825');";
+	ret = sqlite3_exec(db,sql,NULL,NULL,NULL);
+	printf("sqlite3_exec ret = %d\n",ret);
+	
+	sql = "insert into carinfo values(87,'Jack','F','1998-05-30','WH1807');";
+	ret = sqlite3_exec(db,sql,NULL,NULL,NULL);
+	printf("sqlite3_exec ret = %d\n",ret);
+	
+	sql = "insert into carinfo values(100,'Rose','M','1996-04-29','XA1804');";
+	ret = sqlite3_exec(db,sql,NULL,NULL,NULL);
+	printf("sqlite3_exec ret = %d\n",ret);
+	
+	sql = "insert into carinfo values(106,'Happy','F','1997-08-12','GZ1825');";
+	ret = sqlite3_exec(db,sql,NULL,NULL,NULL);
+	printf("sqlite3_exec ret = %d\n",ret);
+
+	//6. 查看数据
+	sql = "select * from carinfo where birth like '%08-12';";
+	ret = sqlite3_exec(db,sql,callback,NULL,NULL);
+}
+
+   练习2： 把1998-05-30修改为1996-08-12，再输出8月12日生日的学生。
+ 
+	//修改数据
+sql = "update carinfo set birth='1996-08-12' where birth='1998-05-30';";
+	ret = sqlite3_exec(db,sql,NULL,NULL,NULL);
+
+   练习3： 输出班级GZ1825的学生的信息
+
+sql = "select * from carinfo where class='GZ1825'";
+	ret = sqlite3_exec(db,sql,callback,NULL,NULL);
+
+   练习4： 写一个switch语句，实现练习2与练习3合并。
+
+	int n;
+	
+	while(1)
+	{
+		printf("1:生日为08-12的同学 2:班级为GZ1825的同学\n");
+		scanf("%d",&n);
+		switch(n)
+		{
+			case 1:
+			//6. 查看数据
+			//1) 08月12日生日的同学
+			sql = "select * from carinfo where birth like '%08-12';";
+			ret = sqlite3_exec(db,sql,callback,NULL,NULL);
+			break;
+			
+			case 2:
+			//2) GZ1825的同学
+			sql = "select * from carinfo where class='GZ1825'";
+			ret = sqlite3_exec(db,sql,callback,NULL,NULL);	
+			break;
+		}
+	}
+
+七. 把数据库的源码文件做成动态库，并在编译程序时链接它！
+
+    演示： hello.c main.c  
+
+  练习：  把第六步的代码，在x86平台把数据库文件编译为动态库！
+  源文件： demo.c（含main函数）  sqlite3.c（不含main函数）
+
+   x86平台：  
+	1.  gcc sqlite3.c -o sqlite3.o
+	2.  gcc -shared -fPIC sqlite3.o -o libsqlite3.so
+
+    编译命令：
+	gcc demo.c -o demo -L . -lsqlite3 -lpthread -ldl
+
+./demo: error while loading shared libraries: libsqlite3.so: cannot open shared object file: No such file or directory
+
+  原因： 动态库在运行时，也必须存在！
+  解决方案：  指定库的路径或者把库放置到系统的库文件存在在目录/lib下
+
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`
+
+  或者   cp libsqlite3.so /lib
+
+   ARM平台：  只需要将上面的gcc修改为arm-linux-gcc即可！
+
+ 
+      
+
+
+   
+
+
+
+
+	
+
+  
+	      
+
+   
